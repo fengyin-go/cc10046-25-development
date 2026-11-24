@@ -77,5 +77,22 @@ npm run dev
 - 列表接口统一返回 `{ items, total, page, size }`，动作接口统一返回 `{ ok, message }`。
 - 状态流转只允许在 `app/services` 里改，路由层不做业务判断。
 
+## 错误处置差异复核
+
+错误记录（`error_logger`）在详情实际状态之外，还保留采集错误处理数据回传的两栏旧值
+（`旧处理状态`、`旧处置动作`）和 `实际确认来源`。两栏对不上的追踪号进入错误处置差异视图：
+
+- `GET /api/error-dispositions?scope=open|unclaimed|claimed|reviewed|all`：按追踪号列出
+  详情状态、两栏旧值、实际确认来源、差异类型（状态冲突 / 旧处置缺失）与复核归属。
+- `GET /api/error-dispositions/snapshot`：待复核统计与待领明细同一次实时计算，
+  运营概览（`GET /api/overview` 的 `disposition` 字段）直接消费同一实际范围。
+- `POST /api/error-dispositions/{追踪号}/claim`：值班员领取，进程内加锁保证并发领取
+  同一追踪号只有一人成功，失败方刷新后仍能查到归属。
+- `POST /api/error-dispositions/{追踪号}/review`：归属值班员复核，只写内部复核表
+  （`error_disposition_review`，不出现在概览模块列表），不回写错误记录、不重新触发
+  实际错误处理；已复核历史凭快照在 `all`/`reviewed` 范围持续可查。
+- 错误详情页动作首次处置时把动作前状态冻结进两栏旧值，原 CSV 导出保留两栏用于对账；
+  两栏重新一致后差异自动从待领列表消失（随实际结案同步）。
+
 领域：数据工程
 子方向：数据采集、爬虫与RPA

@@ -29,3 +29,13 @@ class EntryPayload(BaseModel):
 class ActionPayload(BaseModel):
     action: str
     remark: str | None = None
+
+
+class ClaimPayload(BaseModel):
+    operator: str
+    remark: str | None = None
+
+
+class ReviewPayload(BaseModel):
+    operator: str
+    remark: str | None = None

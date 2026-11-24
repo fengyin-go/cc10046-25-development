@@ -200,6 +200,17 @@ export const MODULES: ModuleMeta[] = [
     actionTargets: {"触发同步": "待启动", "重置水位": "同步中断"},
     metrics: ["水位总数", "已同步水位", "待启动水位"],
   },
+  {
+    key: "error_logger",
+    name: "错误记录",
+    entity: "错误日志",
+    desc: "记录采集错误并维护详情状态与旧处理字段的处置差异复核",
+    fields: ["错误码", "错误信息", "来源模块", "发生时间", "追踪号", "严重级别", "处理状态", "关联任务", "旧处理状态", "旧处置动作", "实际确认来源"],
+    statuses: ["未处理", "处理中", "已解决", "已忽略"],
+    actions: ["开始处理", "标记解决", "标记忽略", "重新打开"],
+    actionTargets: {"开始处理": "处理中", "标记解决": "已解决", "标记忽略": "已忽略", "重新打开": "未处理"},
+    metrics: ["错误总数", "处理中", "已解决"],
+  },
 ]
 
 export const MODULE_BY_KEY: Map<string, ModuleMeta> = new Map(

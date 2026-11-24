@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.routers import ROUTERS
+from app.services.error_logger import ErrorLoggerService
 from app.store import store
 
 app = FastAPI(title="网络数据采集与RPA自动化平台", version="1.0.0")
@@ -22,6 +23,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+_error_logger = ErrorLoggerService()
+
+
 @app.get("/api/health")
 def health() -> dict[str, object]:
     """健康检查：确认服务已经监听、示例数据已经就绪。"""
@@ -30,8 +34,14 @@ def health() -> dict[str, object]:
 
 @app.get("/api/overview")
 def overview() -> dict[str, object]:
-    """运营概览：把各业务模块的待处理量汇总成看板卡片。"""
-    return store.overview()
+    """运营概览：把各业务模块的待处理量汇总成看板卡片。
+
+    错误处置差异的待复核统计与可领取明细来自同一次实时计算（同一实际范围），
+    值班员可直接在概览按追踪号领取。
+    """
+    payload = store.overview()
+    payload["disposition"] = _error_logger.disposition_snapshot()
+    return payload
 
 
 # 资源路由含 /api/{module}，必须放在 health / overview 之后注册，

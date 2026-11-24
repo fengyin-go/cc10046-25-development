@@ -3,5 +3,8 @@ from __future__ import annotations
 
 from app.routers import resource
 from app.routers import chains
+from app.routers import disposition
 
-ROUTERS = [resource, chains]
+# disposition 提供 /api/error-dispositions 固定路径，必须排在通配的资源路由之前，
+# 否则 /api/{module} 会先把它当成模块名匹配。
+ROUTERS = [disposition, resource, chains]
